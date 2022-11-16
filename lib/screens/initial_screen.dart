@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:primeiro_projeto/components/task.dart';
+import 'package:primeiro_projeto/data/task_inherited.dart';
+import 'package:primeiro_projeto/screens/form_screen.dart';
 
 class InitialScreen extends StatefulWidget {
   const InitialScreen({Key? key}) : super(key: key);
@@ -9,59 +11,68 @@ class InitialScreen extends StatefulWidget {
 }
 
 class _InitialScreenState extends State<InitialScreen> {
-  bool opacity = true;
+  int level = 0;
+
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
-      appBar: AppBar(
-          leading: const Icon(Icons.add), title: const Text("Tarefas")),
-      body: AnimatedOpacity(
-        opacity: opacity ? 1 : 0,
-        duration: const Duration(milliseconds: 800),
-        child: ListView(
-          scrollDirection: Axis.vertical,
-          children: const [
-            Task(
-              "Aprender Flutter",
-              "assets/images/aprender-flutter.jpg",
-              5,
+      appBar:
+          // AppBar(leading: SizedBox(), title: const Text("Tarefas"),),
+          AppBar(
+        toolbarHeight: 90,
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                const Text("Tarefas"),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+
+                    });
+                  },
+                  icon: const Icon(Icons.refresh),
+                ),
+                //
+              ],
             ),
-            Task(
-              "Andar de Bike",
-              "assets/images/andar-de-bike.jpg",
-              3,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                 SizedBox(
+                  width: 200,
+                  child: LinearProgressIndicator(
+                    color: Colors.white,
+                    value: 0,
+                  ),
+                ),
+                Text("Nivel: $level"),
+              ],
             ),
-            Task(
-              "Cozinhar",
-              "assets/images/cozinhar.jpg",
-              4,
-            ),
-            Task(
-              "Meditar",
-              "assets/images/meditar.jpg",
-              2,
-            ),
-            Task(
-              "Atividade Física",
-              "assets/images/exercicio-fisico.jpg",
-              5,
-            ),
-            Task(
-              "Ler Livro",
-              "assets/images/ler-livro.jpg",
-              1,
-            ),
-            SizedBox(height: 80,)
           ],
         ),
       ),
+      body: ListView(
+        padding: const EdgeInsets.only(top: 8, bottom: 70),
+        children: TaskInherited.of(context).taskList,
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {
-            opacity = !opacity;
-          });
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (contextNew) => FormScreen(
+                taskContext: context,
+              ),
+            ),
+          );
+          //Navigator.pushReplacementNamed(context, "/formScreen");
         },
-        child: const Icon(Icons.remove_red_eye),
+        child: const Icon(Icons.add),
       ),
     );
   }
