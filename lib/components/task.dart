@@ -1,32 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:primeiro_projeto/components/difficulty.dart';
-
-import '../data/task_inherited.dart';
-import '../screens/initial_screen.dart';
+import 'package:primeiro_projeto/data/new_task_dao.dart';
+import 'package:primeiro_projeto/data/task_dao.dart';
 
 class Task extends StatefulWidget {
   final String name;
   final String image;
   final int difficulty;
+  int nivel;
   int maestryLevel = 1;
 
-  Task(this.name, this.image, this.difficulty, {Key? key})
+  Task(this.name, this.image, this.difficulty, [this.nivel = 0, Key? key])
       : super(key: key);
 
-  int nivel = 0;
   @override
   State<Task> createState() => _TaskState();
 
-  int actualLevel(){
-    return nivel ;
+  int actualLevel() {
+    return nivel;
   }
 }
 
 class _TaskState extends State<Task> {
-
-
-  bool assetOrNetwork (){
-    if(widget.image.contains("http")){
+  bool assetOrNetwork() {
+    if (widget.image.contains("http")) {
       return false;
     }
     return true;
@@ -34,22 +31,28 @@ class _TaskState extends State<Task> {
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Stack(children: [
         Container(
-
           //color: Colors.blue,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
-            color: (widget.maestryLevel == 1) ? Colors.blue :
-                   (widget.maestryLevel == 2) ? Colors.green :
-                   (widget.maestryLevel == 3) ? Colors.yellow :
-                   (widget.maestryLevel == 4) ? Colors.orange :
-                   (widget.maestryLevel == 5) ? Colors.red :
-                   (widget.maestryLevel == 6) ? Colors.pink :
-                   (widget.maestryLevel == 7) ? Colors.black : Colors.black,
+            color: (widget.maestryLevel == 1)
+                ? Colors.blue
+                : (widget.maestryLevel == 2)
+                    ? Colors.green
+                    : (widget.maestryLevel == 3)
+                        ? Colors.yellow
+                        : (widget.maestryLevel == 4)
+                            ? Colors.orange
+                            : (widget.maestryLevel == 5)
+                                ? Colors.red
+                                : (widget.maestryLevel == 6)
+                                    ? Colors.pink
+                                    : (widget.maestryLevel == 7)
+                                        ? Colors.black
+                                        : Colors.black,
           ),
           height: 140,
         ),
@@ -75,13 +78,15 @@ class _TaskState extends State<Task> {
                         height: 100,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(5),
-                          child: (assetOrNetwork()) ? Image.asset(
-                            widget.image,
-                            fit: BoxFit.cover,
-                          ) : Image.network(
-                            widget.image,
-                            fit: BoxFit.cover,
-                          ),
+                          child: (assetOrNetwork())
+                              ? Image.asset(
+                                  widget.image,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.network(
+                                  widget.image,
+                                  fit: BoxFit.cover,
+                                ),
                         ),
                       ),
                       Column(
@@ -107,31 +112,62 @@ class _TaskState extends State<Task> {
                         width: 52,
                         height: 52,
                         child: ElevatedButton(
-                            onPressed: () {
-                              //widget.actualLevel();
-                              setState(() {
+                          onLongPress: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text("Alerta!"),
+                                  content:
+                                      const Text("Deseja excluir a tarefa?"),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        NewTaskDao().delete(widget.name);
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("Sim"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("Cancelar"),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ); //
+                          },
+                          onPressed: () {
+                            setState(
+                              () {
                                 widget.nivel++;
-                                if(widget.nivel / widget.difficulty > 10){
-                                  widget.maestryLevel++;
-                                  if(widget.maestryLevel <= 7){
-                                    widget.nivel = 1;
-                                  }
-                                }
-                              });
-                            },
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.arrow_drop_up),
-                                Text(
-                                  "UP",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                  ),
-                                )
-                              ],
-                            )),
+                                // if (widget.nivel / widget.difficulty > 10) {
+                                //   widget.maestryLevel++;
+                                //   if (widget.maestryLevel <= 7) {
+                                //     widget.nivel = 1;
+                                //   }
+                                // }
+                              },
+                            );
+                          NewTaskDao().addTask(Task(widget.name, widget.image, widget.difficulty, widget.nivel));
+
+                          },
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.arrow_drop_up),
+                              Text(
+                                "UP",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
                       )
                     ],
                   ),
@@ -148,7 +184,7 @@ class _TaskState extends State<Task> {
                       value: (widget.difficulty > 0)
                           ? (widget.nivel / widget.difficulty) / 10
                           : 1,
-                    ) ,
+                    ),
                   ),
                   Text("Nivel: ${widget.nivel}",
                       style: const TextStyle(
